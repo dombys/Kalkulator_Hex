@@ -79,7 +79,10 @@ xor esi, esi
 xor edi, edi
 mov esi, Num1_arr
 mov edi, Hex1_arr
+mov eax, [strlen1]
+and eax, 1
 mov ecx, [strlen1]
+add ecx, eax
 shr ecx, 1
 call combineHex
 
@@ -165,7 +168,10 @@ xor esi, esi
 xor edi, edi
 mov esi, Num2_arr
 mov edi, Hex2_arr
+mov eax, [strlen2]
+and eax, 1
 mov ecx, [strlen2]
+add ecx, eax
 shr ecx, 1
 call combineHex
 jmp exit
@@ -234,6 +240,7 @@ mov edx, msg_len2
 int 0x80
 jmp exit
 
+
 combineHex:
 mov al, [esi]
 shl al, 4
@@ -244,13 +251,7 @@ inc esi
 inc esi
 inc edi
 dec ecx
-cmp ecx, 0
-je oddone
 jnz combineHex
-
-oddone:
-mov al, [esi]
-mov [edi], al
 ret
 
 exit:
