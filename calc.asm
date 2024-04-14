@@ -11,11 +11,11 @@ msgm_len equ $ -msgm
 newline db 0xa
 newline_len equ $ -newline
 
-msg1 db 'Podano zly znak', 0xa
-msg_len1 equ $ -msg1
+msgerr1 db 'Podano zly znak', 0xa
+msg_lenerr1 equ $ -msgerr1
 
-msg2 db 'Podano zla dana, sprawdz podane argumenty', 0xa
-msg_len2 equ $ -msg2
+msgerr2 db 'Podano zla dana, sprawdz podane argumenty', 0xa
+msg_lenerr2 equ $ -msgerr2
 
 
 nel db 0xa
@@ -100,6 +100,7 @@ je odejmij
 mov al, [ecx]
 cmp al, '*'
 je mnoz
+jne zly_znak
 
 dodaj:
 mov eax, 4
@@ -235,11 +236,18 @@ ret
 zla_dana:
 mov eax, 4
 mov ebx, 1
-mov ecx, msg2
-mov edx, msg_len2
+mov ecx, msgerr2
+mov edx, msg_lenerr2
 int 0x80
 jmp exit
 
+zly_znak:
+mov eax, 4
+mov ebx, 1
+mov ecx, msgerr1
+mov edx, msg_lenerr1
+int 0x80
+jmp exit
 
 combineHex:
 mov al, [esi]
