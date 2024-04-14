@@ -3,7 +3,9 @@ Funkcje, które mają zostać zaimplementowane:
 - Dodawanie
 - Odejmowanie
 - Mnożenie
-- Dzielenie (dzielenie tylko przez dzielnik 4 bajtowy)
+- Dzielenie (dzielenie tylko przez dzielniku 4 bajtowym)
+- Konwersja wyniku z hex na ASCII
+- Wypisanie wyniku
 
 Obecnie zaimplementowane elementy programu:
 - pobieranie wymaganych argumentów ze stacka
