@@ -79,12 +79,18 @@ xor esi, esi
 xor edi, edi
 mov esi, Num1_arr
 mov edi, Hex1_arr
+OneByteStrlen1:
+mov ecx, [strlen1]
+cmp ecx, 1 ;sprawdz czy 1 znak wpisano
+je onebyteHex1
+wincejniz1bajtstrlen1:
 mov eax, [strlen1]
 and eax, 1
 mov ecx, [strlen1]
 add ecx, eax
 shr ecx, 1
 call combineHex
+jmp znak
 
 ;dopasc znak
 znak:
@@ -169,6 +175,11 @@ xor esi, esi
 xor edi, edi
 mov esi, Num2_arr
 mov edi, Hex2_arr
+OneByteStrlen2:
+mov ecx, [strlen2]
+cmp ecx, 1 ;sprawdz czy 1 znak wpisano
+je onebyteHex
+wincejniz1bajtstrlen2:
 mov eax, [strlen2]
 and eax, 1
 mov ecx, [strlen2]
@@ -262,7 +273,18 @@ dec ecx
 jnz combineHex
 ret
 
+onebyteHex1:
+mov al, [esi]
+mov [edi], al
+jmp znak
+
+onebyteHex:
+mov al, [esi]
+mov [edi], al
+jmp exit
+
 exit:
+call czyscrejestr
 mov eax, 1
 mov ebx, 0
 int 0x80
