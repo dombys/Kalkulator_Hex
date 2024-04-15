@@ -522,9 +522,15 @@ add esi, ecx
 add edi, ecx
 mov al, byte [esi]
 mov bl, byte [edi]
+cmp al, bl
+jae sub_nocarry
 sub al, bl
 mov [esi], al
 jc sub_carry
+
+sub_nocarry:
+sub al, bl
+mov [esi], al
 jmp sub_loop
 
 sub_carry:
@@ -533,19 +539,38 @@ mov al, byte [esi]
 sub al, 1
 mov [esi], al
 jc sub_carry
+jmp sub_loop
+
 sub_loop:
 dec ecx
 cmp ecx, 0
-je done
+je done_sub
 dec edi
 mov esi, Wynik_arr
 add esi, ecx
 mov al, byte [esi]
 mov bl, byte [edi]
+cmp al, bl
+jae sub_nocarry
 sub al, bl
 mov [esi], al
 jc sub_carry
 jmp sub_loop
+
+done_sub:
+mov ecx, [strlen1hex]
+mov esi, Wynik_arr
+add esi, ecx
+neg_loop:
+cmp ecx, 0
+je done
+mov al, [esi]
+not al
+mov [esi], al
+dec esi
+dec ecx
+jmp neg_loop
+
 
 liczmnoz:
 mov edx, 1
