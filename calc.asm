@@ -338,6 +338,77 @@ xor edi, edi
 mov esi, Wynik_arr
 mov edi, PrzepisanaLiczba_arr
 mov ecx, [strlen1hex]
+call sumator
+
+sumuj_z_przeniesieniem_wzgledem_Num1:
+call czyscrejestr
+xor esi, esi
+xor edi, edi
+;przenosimy do tabeli wynik wartosci 1. licby
+mov esi, Hex1_arr
+mov edi, Wynik_arr
+mov ecx, [strlen1hex]
+add edi, ecx
+call przepisz_odwroc
+call czyscrejestr ;zeby pozbyc sie wszystkiego z eax, ebx, ecx i edx
+;dostosowujemy drugiego arraya do wynikowego
+mov esi, Hex2_arr
+mov edi, PrzepisanaLiczba_arr
+mov ecx, [strlen2hex]
+add edi, ecx
+call roznicastrlen1astrlen2
+add edi, ecx
+call przepisz_odwroc
+call czyscrejestr
+xor esi, esi
+xor edi, edi
+mov esi, Wynik_arr
+mov edi, PrzepisanaLiczba_arr
+mov ecx, [strlen1hex]
+call sumator
+
+roznicastrlen1astrlen2:
+mov eax, [strlen1hex]
+mov ebx, [strlen2hex]
+sub eax, ebx
+mov ecx, eax
+ret
+
+sumuj_z_przeniesieniem_wzgledem_Num2:
+call czyscrejestr
+xor esi, esi
+xor edi, edi
+;przenosimy do tabeli wynik wartosci 1. licby
+mov esi, Hex1_arr
+mov edi, Wynik_arr
+mov ecx, [strlen1hex]
+add edi, ecx
+call roznicastrlen2astrlen1
+add edi, ecx
+call przepisz_odwroc
+call czyscrejestr ;zeby pozbyc sie wszystkiego z eax, ebx, ecx i edx
+;dostosowujemy drugiego arraya do wynikowego
+mov esi, Hex2_arr
+mov edi, PrzepisanaLiczba_arr
+mov ecx, [strlen2hex]
+add edi, ecx
+call przepisz_odwroc
+call czyscrejestr
+xor esi, esi
+xor edi, edi
+mov esi, Wynik_arr
+mov edi, PrzepisanaLiczba_arr
+mov ecx, [strlen2hex]
+call sumator
+
+roznicastrlen2astrlen1:
+mov eax, [strlen2hex]
+mov ebx, [strlen1hex]
+sub eax, ebx
+mov ecx, eax
+ret
+
+sumator:
 add esi, ecx
 add edi, ecx
 mov al, byte [esi]
@@ -367,16 +438,9 @@ mov [esi], al
 jc add_carry
 jmp add_loop
 
-
 done:
 jmp exit
 
-sumuj_z_przeniesieniem_wzgledem_Num1:
-jmp exit
-
-
-sumuj_z_przeniesieniem_wzgledem_Num2:
-jmp exit
 
 liczroz:
 mov edx, 1
