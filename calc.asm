@@ -500,6 +500,14 @@ xor edx, edx
 cmp al, 0x10
 jge sprawdz_carry
 mov [edi], al
+cmp al, 0x10
+jl clear_carr
+jmp mul_loop_One
+
+clear_carr:
+xor edx, edx
+mov edx, 0
+mov [carr], edx
 jmp mul_loop_One
 
 done_mul:
