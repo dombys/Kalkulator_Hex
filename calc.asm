@@ -23,6 +23,7 @@ nel_len equ $ -nel
 
 strlen1 times 8 db 0
 strlen2 times 8 db 0
+carr times 1 db 0
 przeniesieniedanych times 8 db 0
 Num1_arr times 201 db 0
 Num2_arr times 201 db 0
@@ -458,6 +459,81 @@ mov [esi], al
 jmp sub_loop
 
 liczmnoz:
+;zaczynamy od sprawdzenia co dłuższe - od tego determinujemy ecx przy mnożeniu
+mov eax, [strlen1]
+mov ebx, [strlen2]
+cmp eax, ebx
+jge mnoz_strlen1
+jmp mnoz_strlen2
+
+
+mnoz_strlen1:
+mov esi, Num1_arr
+mov edi, Num2_arr
+mov ecx, [strlen1]
+add esi, ecx
+mov ecx, [strlen2]
+add edi, ecx
+mov ecx, [strlen1]
+mov al, byte [esi]
+mov bl, byte [edi]
+mul bl
+mov edi, Wynik_arr
+add edi, ecx
+add edi, 1
+cmp al, 0x10
+jge sprawdz_carry
+mov [edi], al
+jmp mul_loop_One
+
+mul_loop_One:
+dec ecx
+cmp ecx, 0
+je done_mul
+dec esi
+dec edi
+mov al, byte [esi]
+mul bl
+mov dl, [carr]
+add al, dl
+xor edx, edx
+cmp al, 0x10
+jge sprawdz_carry
+mov [edi], al
+jmp mul_loop_One
+
+done_mul:
+mov dl, [carr]
+cmp dl, 0
+je done
+dec edi
+mov [edi], dl
+jmp wypisz_mul
+
+sprawdz_carry:
+cmp al, 0x10
+jl carr_wpis
+inc edx
+sub al, 0x10
+cmp al, 0x10
+jge sprawdz_carry
+carr_wpis:
+mov [carr], edx
+mov [edi], al
+jmp mul_loop_One
+
+mnoz_strlen2:
+mov esi, Num1_arr
+mov edi, Num2_arr
+mov edx, Wynik_arr
+mov ecx, [strlen2]
+add edi, ecx
+add edx, ecx
+mov ecx, [strlen1]
+add edx, ecx
+; poniewaz przy mnozeniu moga byc 2 przeniesienia -> jedno na ostatnim bajcie przy dodawaniu, drugie jako wynik ostatniego dodawania
+mov ecx, [strlen1]
+add esi, ecx
 jmp exit
 
 
@@ -537,6 +613,28 @@ call wypisz
 call nl
 jmp exit
 
+
+wypisz_mul:
+call czyscrejestr
+mov edi, Wynik_arr
+mov eax, [strlen1]
+mov ebx, [strlen2]
+mov ecx, 0
+add ecx, eax
+add ecx, ebx
+add ecx, 1
+call converback
+call nl
+mov ecx, Wynik_arr
+mov eax, [strlen1]
+mov ebx, [strlen2]
+mov edx, 0
+add edx, eax
+add edx, ebx
+add edx, 1
+call wypisz
+call nl
+jmp exit
 
 exit:
 call czyscrejestr
