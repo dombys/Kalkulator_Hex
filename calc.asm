@@ -23,16 +23,12 @@ nel_len equ $ -nel
 
 strlen1 times 8 db 0
 strlen2 times 8 db 0
-strlen1hex times 8 db 0
-strlen2hex times 8 db 0
 przeniesieniedanych times 8 db 0
 Num1_arr times 201 db 0
 Num2_arr times 201 db 0
-Hex1_arr times 101 db 0
-Hex2_arr times 101 db 0
-PrzepisanaLiczba_arr times 101 db 0
-Wynik_arr times 1000 db 0
-Wypisz_arr times 1000 db 0
+PrzepisanaLiczba_arr times 201 db 0
+Wynik_arr times 2002 db 0
+Wypisz_arr times 2002 db 0
 
 global _start
 section .text
@@ -76,27 +72,6 @@ xor edi, edi
 mov edi, Num1_arr
 mov ecx, [strlen1]
 call converHex
-
-createHex1:
-call czyscrejestr
-xor esi, esi
-xor edi, edi
-mov esi, Num1_arr
-mov edi, Hex1_arr
-OneByteStrlen1:
-mov ecx, [strlen1]
-cmp ecx, 1 ;sprawdz czy 1 znak wpisano
-je onebyteHex1
-wincejniz1bajtstrlen1:
-mov eax, [strlen1]
-and eax, 1
-mov ecx, [strlen1]
-add ecx, eax
-shr ecx, 1
-mov [strlen1hex], ecx
-mov edx, [strlen1]
-call combineHex
-jmp znak
 
 ;dopasc znak
 znak:
@@ -168,26 +143,6 @@ xor edi, edi
 mov edi, Num2_arr
 mov ecx, [strlen2]
 call converHex
-
-createHex2:
-call czyscrejestr
-xor esi, esi
-xor edi, edi
-mov esi, Num2_arr
-mov edi, Hex2_arr
-OneByteStrlen2:
-mov ecx, [strlen2]
-cmp ecx, 1 ;sprawdz czy 1 znak wpisano
-je onebyteHex
-wincejniz1bajtstrlen2:
-mov eax, [strlen2]
-and eax, 1
-mov ecx, [strlen2]
-add ecx, eax
-shr ecx, 1
-mov [strlen2hex], ecx
-mov edx, [strlen2]
-call combineHex
 jmp liczenie
 
 wypisz:
@@ -262,31 +217,6 @@ mov edx, msg_lenerr1
 int 0x80
 jmp exit
 
-combineHex:
-mov al, [esi + edx - 1]
-shl al, 4
-mov bl, [esi + edx]
-or al, bl
-mov [edi + 1], al
-inc edi
-dec edx
-dec edx
-dec ecx
-jnz combineHex
-ret
-
-onebyteHex1:
-mov [strlen1hex], ecx
-mov al, [esi+1]
-mov [edi+1], al
-jmp znak
-
-onebyteHex:
-mov [strlen2hex], ecx
-mov al, [esi+1]
-mov [edi+1], al
-jmp liczenie
-
 liczenie:
 mov ecx, dword [ebp + 16]
 mov al, [ecx]
@@ -302,114 +232,107 @@ cmp al, '*'
 je liczmnoz
 
 liczsum:
-mov eax, [strlen1hex]
-mov ebx, [strlen2hex]
+mov eax, [strlen1]
+mov ebx, [strlen2]
 cmp eax, ebx
 je sumuj
-mov eax, [strlen1hex]
-mov ebx, [strlen2hex]
+mov eax, [strlen1]
+mov ebx, [strlen2]
 cmp eax, ebx
 jg sumuj_z_przeniesieniem_wzgledem_Num1
-mov eax, [strlen1hex]
-mov ebx, [strlen2hex]
+mov eax, [strlen1]
+mov ebx, [strlen2]
 cmp eax, ebx
 jl sumuj_z_przeniesieniem_wzgledem_Num2
 
 sumuj:
-call czyscrejestr
-xor esi, esi
-xor edi, edi
-;przenosimy do tabeli wynik wartosci 1. licby
-mov esi, Hex1_arr
+;liczby równej dłuości, więc przepisujemy stringa do stringa wynikowego bez zmian w drugim
+mov esi, Num1_arr
 mov edi, Wynik_arr
-mov ecx, [strlen1hex]
-add edi, ecx
-call przepisz_odwroc
-call czyscrejestr ;zeby pozbyc sie wszystkiego z eax, ebx, ecx i edx
-;dostosowujemy drugiego arraya do wynikowego
-mov esi, Hex2_arr
-mov edi, PrzepisanaLiczba_arr
-mov ecx, [strlen1hex]
-add edi, ecx
-call przepisz_odwroc
+mov ecx, [strlen1]
+call przepisz
 call czyscrejestr
-xor esi, esi
-xor edi, edi
 mov esi, Wynik_arr
-mov edi, PrzepisanaLiczba_arr
-mov ecx, [strlen1hex]
+mov edi, Num2_arr
+mov ecx, [strlen1]
 call sumator
 
 sumuj_z_przeniesieniem_wzgledem_Num1:
-call czyscrejestr
-xor esi, esi
-xor edi, edi
-;przenosimy do tabeli wynik wartosci 1. licby
-mov esi, Hex1_arr
+;liczba Num1 jest dłuższa od Num2, wiec po przepisaniu do Wynik_arr musimy dostosować jeszcze drugi array
+mov esi, Num1_arr
 mov edi, Wynik_arr
-mov ecx, [strlen1hex]
-add edi, ecx
-call przepisz_odwroc
-call czyscrejestr ;zeby pozbyc sie wszystkiego z eax, ebx, ecx i edx
-;dostosowujemy drugiego arraya do wynikowego
-mov esi, Hex2_arr
+mov ecx, [strlen1]
+call przepisz
+call czyscrejestr
+mov esi, Num2_arr
 mov edi, PrzepisanaLiczba_arr
-mov ecx, [strlen2hex]
-add edi, ecx
 call roznicastrlen1astrlen2
 add edi, ecx
-call przepisz_odwroc
+mov ecx, [strlen2]
+call przepisz
 call czyscrejestr
-xor esi, esi
-xor edi, edi
 mov esi, Wynik_arr
 mov edi, PrzepisanaLiczba_arr
-mov ecx, [strlen1hex]
+mov ecx, [strlen1]
 call sumator
 
 sumuj_z_przeniesieniem_wzgledem_Num2:
-call czyscrejestr
-xor esi, esi
-xor edi, edi
-;przenosimy do tabeli wynik wartosci 1. licby
-mov esi, Hex1_arr
+;liczba Num2 jest dłuższa od Num1, wiec po przepisaniu do Wynik_arr musimy dostosować jeszcze drugi array
+mov esi, Num1_arr
 mov edi, Wynik_arr
-mov ecx, [strlen1hex]
-add edi, ecx
 call roznicastrlen2astrlen1
 add edi, ecx
-call przepisz_odwroc
-call czyscrejestr ;zeby pozbyc sie wszystkiego z eax, ebx, ecx i edx
-;dostosowujemy drugiego arraya do wynikowego
-mov esi, Hex2_arr
-mov edi, PrzepisanaLiczba_arr
-mov ecx, [strlen2hex]
-add edi, ecx
-call przepisz_odwroc
+mov ecx, [strlen1]
+call przepisz
 call czyscrejestr
-xor esi, esi
-xor edi, edi
+mov esi, Num2_arr
+mov edi, PrzepisanaLiczba_arr
+mov ecx, [strlen2]
+call przepisz
+call czyscrejestr
 mov esi, Wynik_arr
 mov edi, PrzepisanaLiczba_arr
-mov ecx, [strlen2hex]
+mov ecx, [strlen2]
 call sumator
+
 
 sumator:
 add esi, ecx
 add edi, ecx
-mov al, byte [esi]
-mov bl, byte [edi]
+mov al, [esi]
+mov bl, [edi]
 add al, bl
+cmp al, 0x10
+jge do_reszty
 mov [esi], al
-jc add_carry
 jmp add_loop
 
-add_carry:
-dec esi
-mov al, byte [esi]
-add al, 1
+do_reszty:
+sub al, 0x10
 mov [esi], al
-jc add_carry
+jmp is_carry
+
+is_carry:
+cmp esi, 0
+je last_add
+dec esi
+mov al, [esi]
+cmp al, 0x0F
+je change_zero
+add al, 0x01
+mov [esi], al
+jmp add_loop
+
+change_zero:
+mov al, 0
+mov [esi], al
+jmp is_carry
+
+last_add:
+mov al, 1
+mov [esi], al
+jmp add_loop
+
 add_loop:
 dec ecx
 cmp ecx, 0
@@ -420,189 +343,198 @@ add esi, ecx
 mov al, byte [esi]
 mov bl, byte [edi]
 add al, bl
+cmp al, 0x10
+jge do_reszty
 mov [esi], al
-jc add_carry
 jmp add_loop
 
 liczroz:
-mov eax, [strlen1hex]
-mov ebx, [strlen2hex]
+mov eax, [strlen1]
+mov ebx, [strlen2]
 cmp eax, ebx
 je roznica
-mov eax, [strlen1hex]
-mov ebx, [strlen2hex]
+mov eax, [strlen1]
+mov ebx, [strlen2]
 cmp eax, ebx
 jg roznica_z_przeniesieniem_wzgledem_Num1
-mov eax, [strlen1hex]
-mov ebx, [strlen2hex]
+mov eax, [strlen1]
+mov ebx, [strlen2]
 cmp eax, ebx
 jl roznica_z_przeniesieniem_wzgledem_Num2
 
 roznica:
-call czyscrejestr
-xor esi, esi
-xor edi, edi
-;przenosimy do tabeli wynik wartosci 1. licby
-mov esi, Hex1_arr
+mov esi, Num1_arr
 mov edi, Wynik_arr
-mov ecx, [strlen1hex]
-add edi, ecx
-call przepisz_odwroc
-call czyscrejestr ;zeby pozbyc sie wszystkiego z eax, ebx, ecx i edx
-;dostosowujemy drugiego arraya do wynikowego
-mov esi, Hex2_arr
-mov edi, PrzepisanaLiczba_arr
-mov ecx, [strlen1hex]
-add edi, ecx
-call przepisz_odwroc
+mov ecx, [strlen1]
+call przepisz
 call czyscrejestr
-xor esi, esi
-xor edi, edi
 mov esi, Wynik_arr
-mov edi, PrzepisanaLiczba_arr
-mov ecx, [strlen1hex]
-call roznicor
+mov edi, Num2_arr
+mov ecx, [strlen1]
+call roznicuj
 
 roznica_z_przeniesieniem_wzgledem_Num1:
-call czyscrejestr
-xor esi, esi
-xor edi, edi
-;przenosimy do tabeli wynik wartosci 1. licby
-mov esi, Hex1_arr
+mov esi, Num1_arr
 mov edi, Wynik_arr
-mov ecx, [strlen1hex]
-add edi, ecx
-call przepisz_odwroc
-call czyscrejestr ;zeby pozbyc sie wszystkiego z eax, ebx, ecx i edx
-;dostosowujemy drugiego arraya do wynikowego
-mov esi, Hex2_arr
+mov ecx, [strlen1]
+call przepisz
+call czyscrejestr
+mov esi, Num2_arr
 mov edi, PrzepisanaLiczba_arr
-mov ecx, [strlen2hex]
-add edi, ecx
 call roznicastrlen1astrlen2
 add edi, ecx
-call przepisz_odwroc
+mov ecx, [strlen2]
+call przepisz
 call czyscrejestr
-xor esi, esi
-xor edi, edi
 mov esi, Wynik_arr
 mov edi, PrzepisanaLiczba_arr
-mov ecx, [strlen1hex]
-call roznicor
+mov ecx, [strlen1]
+call roznicuj
 
 roznica_z_przeniesieniem_wzgledem_Num2:
-call czyscrejestr
-xor esi, esi
-xor edi, edi
-;przenosimy do tabeli wynik wartosci 1. licby
-mov esi, Hex1_arr
+mov esi, Num1_arr
 mov edi, Wynik_arr
-mov ecx, [strlen1hex]
-add edi, ecx
 call roznicastrlen2astrlen1
 add edi, ecx
-call przepisz_odwroc
-call czyscrejestr ;zeby pozbyc sie wszystkiego z eax, ebx, ecx i edx
-;dostosowujemy drugiego arraya do wynikowego
-mov esi, Hex2_arr
-mov edi, PrzepisanaLiczba_arr
-mov ecx, [strlen2hex]
-add edi, ecx
-call przepisz_odwroc
+mov ecx, [strlen1]
+call przepisz
 call czyscrejestr
-xor esi, esi
-xor edi, edi
+mov esi, Num2_arr
+mov edi, PrzepisanaLiczba_arr
+mov ecx, [strlen2]
+call przepisz
+call czyscrejestr
 mov esi, Wynik_arr
 mov edi, PrzepisanaLiczba_arr
-mov ecx, [strlen2hex]
-call roznicor
+mov ecx, [strlen2]
+call roznicuj
 
-roznicor:
+roznicuj:
 add esi, ecx
 add edi, ecx
-mov al, byte [esi]
-mov bl, byte [edi]
+mov al, [esi]
+mov bl, [edi]
 cmp al, bl
-jae sub_nocarry
-sub al, bl
-mov [esi], al
-jc sub_carry
-
-sub_nocarry:
+jl sub_with_borrow
 sub al, bl
 mov [esi], al
 jmp sub_loop
+
+sub_with_borrow:
+add al, 0x10
+sub al, bl
+mov [esi], al
+jmp sub_carry
 
 sub_carry:
+cmp esi, 0
+je done
 dec esi
-mov al, byte [esi]
-sub al, 1
+mov al, [esi]
+cmp al, 0x00
+je change_F
+sub al, 0x01
 mov [esi], al
-jc sub_carry
 jmp sub_loop
+
+change_F:
+mov al, 0x0F
+mov [esi], al
+jmp sub_carry
 
 sub_loop:
 dec ecx
 cmp ecx, 0
-je done_sub
+je done
 dec edi
 mov esi, Wynik_arr
 add esi, ecx
 mov al, byte [esi]
 mov bl, byte [edi]
 cmp al, bl
-jae sub_nocarry
+jl sub_with_borrow
 sub al, bl
 mov [esi], al
-jc sub_carry
 jmp sub_loop
 
-done_sub:
-mov ecx, [strlen1hex]
-mov esi, Wynik_arr
-add esi, ecx
-neg_loop:
-cmp ecx, 0
-je done
-mov al, [esi]
-not al
-mov [esi], al
-dec esi
-dec ecx
-jmp neg_loop
-
-
 liczmnoz:
-mov edx, 1
-call wypisz
-call nl
 jmp exit
 
 
-przepisz_odwroc:
+przepisz:
 mov al, [esi+1]
-mov [edi], al
+mov [edi+1], al
 inc esi
-dec edi
+inc edi
 dec ecx
-jnz przepisz_odwroc
+jnz przepisz
 ret
 
 roznicastrlen1astrlen2:
-mov eax, [strlen1hex]
-mov ebx, [strlen2hex]
+mov eax, [strlen1]
+mov ebx, [strlen2]
 sub eax, ebx
 mov ecx, eax
 ret
 
 roznicastrlen2astrlen1:
-mov eax, [strlen2hex]
-mov ebx, [strlen1hex]
+mov eax, [strlen2]
+mov ebx, [strlen1]
 sub eax, ebx
 mov ecx, eax
 ret
 
+converback:
+mov al, [edi]
+cmp al, 0x09
+jle liczbaASCII
+cmp al, 0x0F
+jle literaASCII
+
+liczbaASCII:
+add al, '0'
+jmp storeASCII
+
+literaASCII:
+add al, 'A' - 10
+jmp storeASCII
+
+storeASCII:
+mov [edi], al
+inc edi
+dec ecx
+jnz converback
+ret
+
+
 done:
+call czyscrejestr
+mov edi, Wynik_arr
+mov eax, [strlen1]
+mov ebx, [strlen2]
+cmp eax, ebx
+jge strlen1dl
+mov ecx, [strlen2]
+add ecx, 1
+call converback
+call nl
+mov ecx, Wynik_arr
+mov edx, [strlen2]
+add edx, 1
+call wypisz
+call nl
+jmp exit
+
+strlen1dl:
+mov ecx, [strlen1]
+add ecx, 1
+call converback
+call nl
+mov ecx, Wynik_arr
+mov edx, [strlen1]
+add edx, 1
+call wypisz
+call nl
 jmp exit
 
 
