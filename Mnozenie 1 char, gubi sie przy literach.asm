@@ -483,6 +483,9 @@ mov edi, 0
 call podlicz_petl
 mov edi, Wynik_arr
 add edi, ecx
+mov ecx, [strlen2]
+add edi, ecx
+mov ecx, [strlen1]
 add edi, 1
 cmp al, 0x10
 jge sprawdz_carry
@@ -523,6 +526,15 @@ dec edi
 mov dl, [carr]
 mov [edi], dl
 jmp wypisz_mul
+mov ecx, [strlen2]
+mov edi, [petl]
+sub ecx, edi
+cmp ecx, 0
+je wypisz_mul
+mov edi, Num2_arr
+add edi, ecx ;wskazuje kolejny bajt
+mov bl, [edi] ;wstawiamy kolejny bajt mnożnej
+jmp cont_mul
 
 sprawdz_carry:
 cmp al, 0x10
@@ -535,6 +547,106 @@ carr_wpis:
 mov [carr], edx
 mov [edi], al
 jmp mul_loop_One
+
+cont_mul:
+mov esi, Num1_arr
+mov ecx, [strlen1]
+add esi, ecx
+mov al, byte [esi]
+mul bl
+mov edi, [petl]
+call podlicz_petl
+mov edi, Wynik_arr
+add edi, ecx
+mov ecx, [strlen2]
+add edi, ecx
+mov ecx, [petl]
+sub edi, ecx
+mov ecx, [strlen1]
+add edi, 1
+cmp al, 0x10
+jge sprawdz_carry_cont
+push ecx
+mov cl, [edi]
+add al, cl
+cmp al, 0x10
+jge add_carry_mul
+mov [edi], al
+pop ecx
+jmp mul_loop_cont
+
+
+add_carry_mul:
+sub al, 0x10
+add [edi], al
+cmp al, 0x10
+jge add_carry_mul
+jmp addc_mul_done
+
+addc_mul_done:
+cmp edi, 0
+je last_add_mul
+dec edi
+mov al, [edi]
+cmp al, 0x0F
+je change_zero_mul
+add al, 0x01
+mov [edi], al
+jmp mul_loop_cont
+
+change_zero_mul:
+mov al, 0
+mov [edi], al
+jmp addc_mul_done
+
+last_add_mul:
+mov al, 1
+add [edi], al
+jmp addc_mul_done
+
+
+mul_loop_cont:
+dec ecx
+cmp ecx, 0
+je done_mul
+dec esi
+dec edi
+mov al, byte [esi]
+mul bl
+mov dl, [carr]
+add al, dl
+xor edx, edx
+cmp al, 0x10
+jge sprawdz_carry_cont
+cmp al, 0x10
+jl clear_carr_cont
+mov dl, [edi]
+add al, dl
+cmp al, 0x10
+jge add_carry_mul
+mov [edi], al
+jmp mul_loop_cont
+
+clear_carr_cont:
+xor edx, edx
+mov edx, 0
+mov [carr], edx
+jmp mul_loop_cont
+
+sprawdz_carry_cont:
+cmp al, 0x10
+jl carr_wpis_cont
+inc edx
+sub al, 0x10
+cmp al, 0x10
+jge sprawdz_carry_cont
+carr_wpis_cont:
+mov [carr], edx
+add [edi], al
+cmp al, 0x10
+jge add_carry_mul
+jmp mul_loop_cont
+
 
 mnoz_strlen2:
 mov esi, Num1_arr
@@ -636,7 +748,7 @@ mov ebx, [strlen2]
 mov ecx, 0
 add ecx, eax
 add ecx, ebx
-add ecx, 1
+add ecx, eax
 call converback
 call nl
 mov ecx, Wynik_arr
@@ -645,7 +757,7 @@ mov ebx, [strlen2]
 mov edx, 0
 add edx, eax
 add edx, ebx
-add edx, 1
+add edx, eax
 call wypisz
 call nl
 jmp exit
