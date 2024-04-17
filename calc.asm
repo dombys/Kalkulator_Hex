@@ -483,6 +483,9 @@ mov edi, 0
 call podlicz_petl
 mov edi, Wynik_arr
 add edi, ecx
+mov ecx, [strlen2]
+add edi, ecx
+mov ecx, [strlen1]
 add edi, 1
 cmp al, 0x10
 jge sprawdz_carry
@@ -555,6 +558,11 @@ mov edi, [petl]
 call podlicz_petl
 mov edi, Wynik_arr
 add edi, ecx
+mov ecx, [strlen2]
+add edi, ecx
+mov ecx, [petl]
+sub edi, ecx
+mov ecx, [strlen1]
 add edi, 1
 cmp al, 0x10
 jge sprawdz_carry_cont
@@ -570,8 +578,9 @@ jmp mul_loop_cont
 
 add_carry_mul:
 sub al, 0x10
-mov [edi], al
-pop ecx
+add [edi], al
+cmp al, 0x10
+jge add_carry_mul
 jmp addc_mul_done
 
 addc_mul_done:
@@ -583,7 +592,7 @@ cmp al, 0x0F
 je change_zero_mul
 add al, 0x01
 mov [edi], al
-jmp addc_mul_done
+jmp mul_loop_cont
 
 change_zero_mul:
 mov al, 0
@@ -592,7 +601,7 @@ jmp addc_mul_done
 
 last_add_mul:
 mov al, 1
-mov [edi], al
+add [edi], al
 jmp addc_mul_done
 
 
@@ -609,9 +618,13 @@ add al, dl
 xor edx, edx
 cmp al, 0x10
 jge sprawdz_carry_cont
-mov [edi], al
 cmp al, 0x10
 jl clear_carr_cont
+mov dl, [edi]
+add al, dl
+cmp al, 0x10
+jge add_carry_mul
+mov [edi], al
 jmp mul_loop_cont
 
 clear_carr_cont:
@@ -629,7 +642,9 @@ cmp al, 0x10
 jge sprawdz_carry_cont
 carr_wpis_cont:
 mov [carr], edx
-mov [edi], al
+add [edi], al
+cmp al, 0x10
+jge add_carry_mul
 jmp mul_loop_cont
 
 
@@ -733,7 +748,7 @@ mov ebx, [strlen2]
 mov ecx, 0
 add ecx, eax
 add ecx, ebx
-add ecx, 1
+add ecx, eax
 call converback
 call nl
 mov ecx, Wynik_arr
@@ -742,7 +757,7 @@ mov ebx, [strlen2]
 mov edx, 0
 add edx, eax
 add edx, ebx
-add edx, 1
+add edx, eax
 call wypisz
 call nl
 jmp exit
