@@ -519,7 +519,6 @@ mov [carr], edx
 jmp mul_loop_One
 
 done_mul:
-dec edi
 mov dl, [carr]
 mov [edi], dl
 jmp wypisz_mul
@@ -583,7 +582,7 @@ cmp al, 0x0F
 je change_zero_mul
 add al, 0x01
 mov [edi], al
-jmp addc_mul_done
+jmp add_loop
 
 change_zero_mul:
 mov al, 0
@@ -593,7 +592,7 @@ jmp addc_mul_done
 last_add_mul:
 mov al, 1
 mov [edi], al
-jmp addc_mul_done
+jmp add_loop
 
 
 mul_loop_cont:
