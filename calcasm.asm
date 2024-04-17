@@ -1,4 +1,13 @@
 section .data
+msg db 'Dodaje', 0xa
+msg_len equ $ -msg
+
+msgo db 'Odejmuje', 0xa
+msgo_len equ $ -msgo
+
+msgm db 'Mnoze', 0xa
+msgm_len equ $ -msgm
+
 newline db 0xa
 newline_len equ $ -newline
 
@@ -8,17 +17,6 @@ msg_lenerr1 equ $ -msgerr1
 msgerr2 db 'Podano zla dana, sprawdz podane argumenty', 0xa
 msg_lenerr2 equ $ -msgerr2
 
-err_msg db 'Podano 0 jako argument. Nie dzelimy przez 0', 0xa
-err_msg_len equ $ -err_msg
-
-msg_dziel_short db 'Wynik dzielenia: ', 0xa
-msg_dziel_short_len equ $ -msg_dziel_short
-
-msg_dziel_reszta db 'Reszta dzielenia: ', 0xa
-msg_dziel_reszta_len equ $ -msg_dziel_reszta
-
-msg_zero db '0', 0xa
-msg_zero_len equ $ -msg_zero
 
 nel db 0xa
 nel_len equ $ -nel
@@ -91,10 +89,6 @@ je odejmij
 mov al, [ecx]
 cmp al, '*'
 je mnoz
-
-mov al, [ecx]
-cmp al, '/'
-je dziel
 jne zly_znak
 
 dodaj:
@@ -110,12 +104,6 @@ call nl
 jmp num2
 
 mnoz:
-mov edx, 1
-call wypisz
-call nl
-jmp num2
-
-dziel:
 mov edx, 1
 call wypisz
 call nl
@@ -244,10 +232,6 @@ je liczroz
 mov al, [ecx]
 cmp al, '*'
 je liczmnoz
-
-mov al, [ecx]
-cmp al, '/'
-je liczdziel
 
 liczsum:
 mov eax, [strlen1]
@@ -566,144 +550,6 @@ mov ecx, [strlen1]
 add esi, ecx
 jmp exit
 ; nie przygotowano wariantu, w którym A jest krótsze od B
-
-liczdziel:
-mov eax, [Num2_arr]
-cmp eax, 0
-je err_msgpisz
-jmp test_strlena
-
-err_msgpisz:
-mov ecx, err_msg
-mov edx, err_msg_len
-call wypisz
-call nl
-
-test_strlena:
-mov eax, [strlen1]
-mov ebx, [strlen2]
-cmp eax, ebx
-jl msgnr2
-jmp okresl_dzielnik
-
-msgnr2:
-mov ecx, msg_dziel_short
-mov edx, msg_dziel_short_len
-call wypisz
-mov ecx, msg_zero
-mov edx, msg_zero_len
-call wypisz
-mov ecx, msg_dziel_reszta
-mov edx, msg_dziel_reszta_len
-call wypisz
-mov ecx, [ebp + 12]
-mov edx, [strlen1]
-call wypisz
-call nl
-okresl_dzielnik:
-call czyscrejestr
-mov esi, Num2_arr
-inc esi ;by ominac pierwsze 0
-mov ecx, [strlen2]
-cmp ecx, 2
-jbe dzielnik_one_byte
-cmp ecx, 4
-jbe dzielnik_two_byte
-cmp ecx, 6
-jbe dzielnik_three_byte
-cmp ecx, 8
-jbe dzielnik_four_byte
-
-dzielnik_one_byte:
-mov ebx, [esi]
-dec ecx
-jz wpisz_first_byte
-inc esi
-shl ebx, 4
-or ebx, [esi]
-jmp wpisz_first_byte
-
-dzielnik_two_byte:
-mov ebx, [esi]
-dec ecx ;ecx 3
-inc esi 
-shl ebx, 4
-add ebx, [esi]
-dec ecx ;ecx 2
-inc esi
-shl ebx, 4
-add ebx, [esi]
-dec ecx ;ecx 1 lub 0
-jz wpisz_first_byte
-inc esi
-shl ebx, 4
-add ebx, [esi]
-jmp wpisz_first_byte
-
-dzielnik_three_byte:
-mov ebx, [esi]
-dec ecx ;ecx 5
-inc esi 
-shl ebx, 4
-add ebx, [esi]
-dec ecx
-inc esi
-shl ebx, 4
-add ebx, [esi]
-dec ecx ;ecx 3
-inc esi
-shl ebx, 4
-add ebx, [esi]
-dec ecx ;ecx2
-inc esi
-shl ebx, 4
-add ebx, [esi]
-dec ecx ;ecx2
-jz wpisz_first_byte
-inc esi
-shl ebx, 4
-add ebx, [esi]
-jmp wpisz_first_byte
-
-dzielnik_four_byte:
-mov ebx, [esi]
-dec ecx ;ecx 7
-inc esi 
-shl ebx, 4
-add ebx, [esi]
-dec ecx
-inc esi
-shl ebx, 4
-add ebx, [esi]
-dec ecx ;ecx 5
-inc esi
-shl ebx, 4
-add ebx, [esi]
-dec ecx ;ecx4
-inc esi
-shl ebx, 4
-add ebx, [esi]
-dec ecx ;ecx3
-inc esi
-shl ebx, 4
-add ebx, [esi]
-dec ecx ;ecx2
-inc esi
-shl ebx, 4
-add ebx, [esi]
-dec ecx ;ecx2
-jz wpisz_first_byte
-inc esi
-shl ebx, 4
-add ebx, [esi]
-jmp wpisz_first_byte
-
-wpisz_first_byte:
-jmp exit
-
-
-
-
 
 przepisz:
 mov al, [esi+1]
