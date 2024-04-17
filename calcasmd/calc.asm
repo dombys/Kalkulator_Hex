@@ -2,6 +2,9 @@ section .data
 newline db 0xa
 newline_len equ $ -newline
 
+msgdziel db 'Dziele', 0xa
+msg_lendziel equ $ -msgdziel
+
 msgerr1 db 'Podano zly znak', 0xa
 msg_lenerr1 equ $ -msgerr1
 
@@ -699,6 +702,9 @@ add ebx, [esi]
 jmp wpisz_first_byte
 
 wpisz_first_byte:
+mov ecx, msgdziel
+mov edx, msg_lendziel
+call wypisz
 jmp exit
 
 
