@@ -20,6 +20,9 @@ msg_dziel_short_len equ $ -msg_dziel_short
 msg_dziel_reszta db 'Reszta dzielenia: ', 0xa
 msg_dziel_reszta_len equ $ -msg_dziel_reszta
 
+msg_dziel_dzielnik db 'Podano za długi dzielnik (kalkulator obsługuje max 4 bajtowy hexadecymalny dzielnik - 8 znaków)', 0xa
+msg_dziel_dzielnik_len equ $ -msg_dziel_dzielnik
+
 msg_zero db '0', 0xa
 msg_zero_len equ $ -msg_zero
 
@@ -30,6 +33,7 @@ strlen1 times 8 db 0
 strlen2 times 8 db 0
 carr times 2 db 0
 petl times 2 db 0
+reszt times 8 db 0
 przeniesieniedanych times 8 db 0
 Num1_arr times 201 db 0
 Num2_arr times 201 db 0
@@ -571,6 +575,20 @@ jmp exit
 ; nie przygotowano wariantu, w którym A jest krótsze od B
 
 liczdziel:
+
+dlugosc_dzielnika:
+mov ecx, [strlen2]
+cmp ecx, 8
+ja dlugi_dzielnik
+jmp sprawdz_zero
+
+dlugi_dzielnik:
+mov ecx, msg_dziel_dzielnik
+mov edx, msg_dziel_dzielnik_len
+call wypisz
+jmp exit
+
+sprawdz_zero:
 mov eax, [Num2_arr]
 cmp eax, 0
 je err_msgpisz
@@ -580,13 +598,13 @@ err_msgpisz:
 mov ecx, err_msg
 mov edx, err_msg_len
 call wypisz
-call nl
+jmp exit
 
 test_strlena:
 mov eax, [strlen1]
 mov ebx, [strlen2]
 cmp eax, ebx
-jl msgnr2
+jb msgnr2
 jmp okresl_dzielnik
 
 msgnr2:
@@ -603,6 +621,8 @@ mov ecx, [ebp + 12]
 mov edx, [strlen1]
 call wypisz
 call nl
+jmp exit
+
 okresl_dzielnik:
 call czyscrejestr
 mov esi, Num2_arr
@@ -618,98 +638,187 @@ cmp ecx, 8
 jbe dzielnik_four_byte
 
 dzielnik_one_byte:
-mov ebx, [esi]
+mov bl, [esi]
 dec ecx
 jz wpisz_first_byte
 inc esi
-shl ebx, 4
-or ebx, [esi]
+shl bl, 4
+add bl, [esi]
 jmp wpisz_first_byte
 
 dzielnik_two_byte:
-mov ebx, [esi]
+mov bl, [esi]
 dec ecx ;ecx 3
 inc esi 
-shl ebx, 4
-add ebx, [esi]
+shl bl, 4
+add bl, [esi]
 dec ecx ;ecx 2
 inc esi
-shl ebx, 4
-add ebx, [esi]
+shl bx, 4
+add bl, [esi]
 dec ecx ;ecx 1 lub 0
 jz wpisz_first_byte
 inc esi
-shl ebx, 4
-add ebx, [esi]
+shl bx, 4
+add bl, [esi]
 jmp wpisz_first_byte
 
 dzielnik_three_byte:
-mov ebx, [esi]
+mov bl, [esi]
 dec ecx ;ecx 5
 inc esi 
-shl ebx, 4
-add ebx, [esi]
-dec ecx
+shl bl, 4
+add bl, [esi]
+dec ecx ;ecx 4
 inc esi
-shl ebx, 4
-add ebx, [esi]
+shl bx, 4
+add bl, [esi]
 dec ecx ;ecx 3
 inc esi
-shl ebx, 4
-add ebx, [esi]
-dec ecx ;ecx2
+shl bx, 4
+add bl, [esi]
+dec ecx ;ecx 2
 inc esi
 shl ebx, 4
-add ebx, [esi]
-dec ecx ;ecx2
+add bl, [esi]
+dec ecx ;ecx 1/0
 jz wpisz_first_byte
 inc esi
 shl ebx, 4
-add ebx, [esi]
+add bl, [esi]
 jmp wpisz_first_byte
 
 dzielnik_four_byte:
-mov ebx, [esi]
-dec ecx ;ecx 7
-inc esi 
-shl ebx, 4
-add ebx, [esi]
-dec ecx
-inc esi
-shl ebx, 4
-add ebx, [esi]
+mov bl, [esi]
 dec ecx ;ecx 5
+inc esi 
+shl bl, 4
+add bl, [esi]
+dec ecx ;ecx 4
+inc esi
+shl bx, 4
+add bl, [esi]
+dec ecx ;ecx 3
+inc esi
+shl bx, 4
+add bl, [esi]
+dec ecx ;ecx 2
 inc esi
 shl ebx, 4
-add ebx, [esi]
-dec ecx ;ecx4
+add bl, [esi]
+dec ecx ;ecx 1/0
 inc esi
 shl ebx, 4
-add ebx, [esi]
-dec ecx ;ecx3
+add bl, [esi]
+dec ecx ;ecx 1/0
 inc esi
 shl ebx, 4
-add ebx, [esi]
-dec ecx ;ecx2
-inc esi
-shl ebx, 4
-add ebx, [esi]
-dec ecx ;ecx2
+add bl, [esi]
+dec ecx
 jz wpisz_first_byte
 inc esi
 shl ebx, 4
-add ebx, [esi]
+add bl, [esi]
 jmp wpisz_first_byte
 
 wpisz_first_byte:
-mov ecx, msgdziel
-mov edx, msg_lendziel
+mov ecx, [strlen1]
+mov edi, Wynik_arr
+mov esi, Num1_arr
+add esi, 1
+mov eax, [esi]
+
+dzielim:
+div ebx
+mov [edi], eax
+mov [reszt], edx
+
+dalej:
+dec ecx
+cmp ecx, 0
+je done_dziel
+inc edi
+inc esi
+xor eax, eax
+xor edx, edx
+wpisz_next:
+mov edx, [reszt]
+cmp edx, 0
+je bez_reszty
+mov al, dl
+shl eax, 4
+mov al, [esi]
+cmp eax, ebx
+jb z_reszta
+jmp dzielim
+
+bez_reszty:
+mov al, [esi]
+cmp eax, ebx
+jae dzielim
+dec ecx
+cmp ecx, 0
+je done_dziel
+inc esi
+inc edi
+shl eax, 4
+jmp bez_reszty
+
+z_reszta:
+dec ecx
+cmp ecx, 0
+je done_dziel
+inc esi
+inc edi
+shl eax, 4
+mov al, [esi]
+cmp eax, ebx
+jb z_reszta
+jmp dzielim
+
+done_dziel:
+mov edi, Wynik_arr
+mov ecx, [strlen1]
+call converback
+mov ecx, msg_dziel_short
+mov edx, msg_dziel_short_len
 call wypisz
+mov ecx, Wynik_arr
+mov edx, [strlen1]
+call wypisz
+call nl
+mov ecx, [reszt]
+cmp ecx, 0
+je exit
+mov ecx, msg_dziel_reszta
+mov edx, msg_dziel_reszta_len
+call wypisz
+mov edi, reszt
+mov ecx, [strlen1]
+call converback
+
+odwroc:
+mov edi, reszt
+mov esi, Wypisz_arr
+add esi, [strlen1]
+mov ecx, [strlen1]
+przepisujemy:
+mov al, [edi]
+mov [esi], al
+dec ecx
+cmp ecx, 0
+je wypisywanie
+inc esi
+inc edi
+jmp przepisujemy
+
+wypisywanie:
+mov ecx, Wypisz_arr
+mov edx, [strlen1]
+add edx, 1
+call wypisz
+call nl
 jmp exit
-
-
-
-
 
 przepisz:
 mov al, [esi+1]
