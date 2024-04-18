@@ -796,26 +796,8 @@ call wypisz
 mov edi, reszt
 mov ecx, [strlen1]
 call converback
-
-odwroc:
-mov edi, reszt
-mov esi, Wypisz_arr
-add esi, [strlen1]
-mov ecx, [strlen1]
-przepisujemy:
-mov al, [edi]
-mov [esi], al
-dec ecx
-cmp ecx, 0
-je wypisywanie
-inc esi
-inc edi
-jmp przepisujemy
-
-wypisywanie:
-mov ecx, Wypisz_arr
+mov ecx, reszt
 mov edx, [strlen1]
-add edx, 1
 call wypisz
 call nl
 jmp exit
