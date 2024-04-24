@@ -1,3 +1,9 @@
+; Szanowny Panie Magistrze,
+; podjąłem próbę napisania rekurencji.
+; Niestety, o ile działa i nie ma segmentation fault nie działa ona poprawnie.
+; Wstawiam celem pokazania swojej pracy.
+;
+;
 section .data
 msg db 'Dodaje', 0xa
 msg_len equ $ -msg
@@ -235,6 +241,8 @@ call czyscrejestr
 mov esi, [ebp+16]
 mov edi, [ebp+12]
 mov ecx, [strlen1]
+add esi, ecx
+add edi, ecx
 jmp sumator
 
 sumuj_z_przeniesieniem_wzgledem_Num1:
@@ -254,6 +262,8 @@ call czyscrejestr
 mov esi, [ebp + 16]
 mov edi, [ebp + 20]
 mov ecx, [strlen1]
+add esi, ecx
+add edi, ecx
 jmp sumator
 
 sumuj_z_przeniesieniem_wzgledem_Num2:
@@ -273,11 +283,32 @@ call czyscrejestr
 mov esi, [ebp + 16]
 mov edi, [ebp + 20]
 mov ecx, [strlen2]
+add esi, ecx
+add edi, ecx
 jmp sumator
 
 sumator:
+cmp ecx, 0 ;jezeli koniec argumentow to koniec
+je done
+;szykujemy sie do wywolania funkcji rekurencyjnej
+push esi ;zapisujemy wartosci na stacku
+push edi
+push ecx
+call add_podstawowy
+pop ecx
+pop edi
+pop esi
+;po przejsciu funkcji przywracamy dane i przechodzimy dalej   
+dec ecx
+dec edi
+mov esi, [ebp + 16]
 add esi, ecx
-add edi, ecx
+jmp sumator
+
+add_podstawowy:
+;poniewaz wywołuje się ją rekurencyjnie to chcemy sprawdzic też tutaj, czy już nie doszliśmy do końca argumentów
+cmp ecx, 0
+je add_koniec
 mov al, [esi]
 mov bl, [edi]
 add al, bl
@@ -313,19 +344,23 @@ mov [esi], al
 jmp add_loop
 
 add_loop:
+;chcemy kolejne liczby do dodania; na stack idą stare i idziemy do nowych
+push esi
+push edi
+push ecx
 dec ecx
-cmp ecx, 0
-je done
 dec edi
 mov esi, [ebp + 16]
 add esi, ecx
-mov al, byte [esi]
-mov bl, byte [edi]
-add al, bl
-cmp al, 0x10
-jge do_reszty
-mov [esi], al
-jmp add_loop
+call add_podstawowy ;wracamy do loopa na dodawanie
+pop ecx
+pop edi
+pop esi
+;zrobilismy 
+jmp add_koniec
+;return do wyjścia z rekurencji
+add_koniec:
+ret
 
 done:
 call czyscrejestr
