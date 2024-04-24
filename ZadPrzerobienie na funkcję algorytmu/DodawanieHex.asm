@@ -2,12 +2,6 @@ section .data
 msg db 'Dodaje', 0xa
 msg_len equ $ -msg
 
-msgo db 'Odejmuje', 0xa
-msgo_len equ $ -msgo
-
-msgm db 'Mnoze', 0xa
-msgm_len equ $ -msgm
-
 newline db 0xa
 newline_len equ $ -newline
 
