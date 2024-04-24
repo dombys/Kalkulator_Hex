@@ -2,12 +2,6 @@ section .data
 msg db 'Dodaje', 0xa
 msg_len equ $ -msg
 
-msgo db 'Odejmuje', 0xa
-msgo_len equ $ -msgo
-
-msgm db 'Mnoze', 0xa
-msgm_len equ $ -msgm
-
 newline db 0xa
 newline_len equ $ -newline
 
@@ -264,20 +258,20 @@ jmp sumator
 
 sumuj_z_przeniesieniem_wzgledem_Num2:
 ;liczba Num2 jest dłuższa od Num1, wiec po przepisaniu do Wynik_arr musimy dostosować jeszcze drugi array
-mov esi, [ebp - 4]
-mov edi, [ebp - 12]
+mov esi, [ebp + 8]
+mov edi, [ebp + 16]
 call roznicastrlen2astrlen1
 add edi, ecx
 mov ecx, [strlen1]
 call przepisz
 call czyscrejestr
-mov esi, [ebp - 8]
-mov edi, [ebp - 16]
+mov esi, [ebp + 12]
+mov edi, [ebp + 20]
 mov ecx, [strlen2]
 call przepisz
 call czyscrejestr
-mov esi, [ebp - 12]
-mov edi, [ebp - 16]
+mov esi, [ebp + 16]
+mov edi, [ebp + 20]
 mov ecx, [strlen2]
 jmp sumator
 
@@ -335,7 +329,7 @@ jmp add_loop
 
 done:
 call czyscrejestr
-mov edi, [ebp - 12]
+mov edi, [ebp + 16]
 mov eax, [strlen1]
 mov ebx, [strlen2]
 cmp eax, ebx
@@ -344,7 +338,7 @@ mov ecx, [strlen2]
 add ecx, 1
 call converback
 call nl
-mov ecx, [ebp - 12]
+mov ecx, [ebp + 16]
 mov edx, [strlen2]
 add edx, 1
 call wypisz
@@ -357,11 +351,12 @@ mov ecx, [strlen1]
 add ecx, 1
 call converback
 call nl
-mov ecx, Wynik_arr
+mov ecx, [ebp + 16]
 mov edx, [strlen1]
 add edx, 1
 call wypisz
 call nl
+leave
 ret
 
 przepisz:
