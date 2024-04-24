@@ -1,0 +1,98 @@
+sumator:
+    ; Initialize the base case for recursion
+    cmp ecx, 0
+    je done
+    
+    ; Call the recursive addition procedure
+    push esi
+    push edi
+    push ecx
+    call recursive_add
+    pop ecx
+    pop edi
+    pop esi
+    
+    ; Decrement the loop counter and continue
+    dec ecx
+    dec edi
+    mov esi, [ebp - 12]
+    add esi, ecx
+    jmp sumator
+
+recursive_add:
+    ; Base case: If no more digits to add, return
+    cmp ecx, 0
+    je recursive_add_done
+    
+    ; Add the current digits
+    mov al, [esi]
+    mov bl, [edi]
+    add al, bl
+    cmp al, 0x10
+    jge do_reszty_recursive
+    mov [esi], al
+    jmp recursive_add_loop
+
+do_reszty_recursive:
+    sub al, 0x10
+    mov [esi], al
+    jmp is_carry_recursive
+
+is_carry_recursive:
+    cmp esi, 0
+    je last_add_recursive
+    dec esi
+    mov al, [esi]
+    cmp al, 0x0F
+    je change_zero_recursive
+    add al, 0x01
+    mov [esi], al
+    jmp recursive_add_loop
+
+change_zero_recursive:
+    mov al, 0
+    mov [esi], al
+    jmp is_carry_recursive
+
+last_add_recursive:
+    mov al, 1
+    mov [esi], al
+    jmp recursive_add_loop
+
+recursive_add_loop:
+    ; Recursive call for the next digits
+    push esi
+    push edi
+    push ecx
+    dec ecx
+    dec edi
+    mov esi, [ebp - 12]
+    add esi, ecx
+    call recursive_add
+    pop ecx
+    pop edi
+    pop esi
+    
+    ; Return from the recursive call
+    jmp recursive_add_done
+
+recursive_add_done:
+    ret
+
+done:
+    call czyscrejestr
+    mov edi, [ebp - 12]
+    mov eax, [strlen1]
+    mov ebx, [strlen2]
+    cmp eax, ebx
+    jge strlen1dl
+    mov ecx, [strlen2]
+    add ecx, 1
+    call converback
+    call nl
+    mov ecx, [ebp - 12]
+    mov edx, [strlen2]
+    add edx, 1
+    call wypisz
+    call nl
+    ret
