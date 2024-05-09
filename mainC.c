@@ -3,7 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 
-extern void welcome(char *a, char *b, int c);
+extern int welcome(int *a, int *b, int c);
 
 int check_Hex(const char *str) {
   for(int i=0; str[i] != '\0'; i++) {
@@ -51,95 +51,169 @@ if (*znak != '+') {
   return 1;
   }
 //deklarujemy dynamicznie tablice wynikowa i przepisana
-char *wynik;
-char *przepisana;
+int *wynik;
+int *przepisana;
+int *Num1;
+int *Num2;
 
 if (strlen1 >= strlen2){
   size_t n = strlen1 + 1;
-  wynik = (char*)malloc(n*sizeof(char));
+  wynik = (int*)malloc(n*sizeof(int));
 }
 else {
   size_t n = strlen2 + 1;
-  wynik = (char*)malloc(n*sizeof(char));
+  wynik = (int*)malloc(n*sizeof(int));
 }
 if (wynik == NULL) {
   printf("Blad alokacji pamieci. Sprawdz deklaracje tablicy wynik\n");
   return 1;
 }
 
-
-
 if (strlen1 >= strlen2){
   size_t n = strlen1 + 1;
-  przepisana = (char*)malloc(n*sizeof(char));
+  przepisana = (int*)malloc(n*sizeof(int));
 }
 else {
   size_t n = strlen2 + 1;
-  przepisana = (char*)malloc(n*sizeof(char));
+  przepisana = (int*)malloc(n*sizeof(int));
 }
 
 if (przepisana == NULL) {
-  printf("Blad alokacji pamieci. Sprawdz deklaracje tablicy wynik\n");
+  printf("Blad alokacji pamieci. Sprawdz deklaracje tablicy przepisana\n");
   return 1;
 }
 
-printf("Tutaj jestem\n");
-
-for (int i=0; i<srtlen1;i++){
-  wynik[i+1]=num1[i]
+if (strlen1 >= strlen2){
+  size_t n = strlen1 + 1;
+  Num1 = (int*)malloc(n*sizeof(int));
 }
-//przepisanie poprawne tablicy
-if (strlen1>=strlen2) {
-for (int i=0; i<srtlen1;i++){
-  przepisana[i+1]=num2[i]
-}
-for (int i = 0; i<(strlen2+1);i++){
-printf ("%c",przepisana[i]);
-}
-}
-for (int i = 0; i<(strlen1+1);i++){
-printf ("%c",wynik[i]);
-}
-for (int i = 0; i<(strlen2+1);i++){
-printf ("%c",przepisana[i]);
+else {
+  size_t n = strlen2 + 1;
+  Num1 = (int*)malloc(n*sizeof(int));
 }
 
-
-
+if (przepisana == NULL) {
+  printf("Blad alokacji pamieci. Sprawdz deklaracje tablicy Num1\n");
+  return 1;
+}
 
 if (strlen1 >= strlen2){
- welcome(wynik, przepisana, strlen1);
+  size_t n = strlen1 + 1;
+  Num2 = (int*)malloc(n*sizeof(int));
+}
+else {
+  size_t n = strlen2 + 1;
+  Num2 = (int*)malloc(n*sizeof(int));
+}
+
+if (przepisana == NULL) {
+  printf("Blad alokacji pamieci. Sprawdz deklaracje tablicy Num2\n");
+  return 1;
+}
+
+
+for (int i=0; i <strlen1; i++){
+char c = num1[i];
+  if (c <='9'){
+    Num1[i+1] = c - '0';
+  }
+  else if (c <='F') {
+    Num1[i+1] = c - 'A' + 10;
+  }
+  else if (c <='f') {
+    Num1[i+1] = c - 'a' + 10;
+  }
+}
+// konwersja drugiej liczby
+for (int i=0; i <strlen2; i++){
+char c = num2[i];
+  if (c <='9'){
+    Num2[i+1] = c - '0';
+  }
+  else if (c <='F') {
+    Num2[i+1] = c - 'A' + 10;
+  }
+  else if (c <='f') {
+    Num2[i+1] = c - 'a' + 10;
+  }
+}
+
+
+
+/*if (strlen1==strlen2) {
+for (int i=0;i<strlen1+1;i++){
+  wynik[i]=num1[i];
+}
+//przepisanie poprawne tablicy
+for (int i=0; i<strlen1+1;i++){
+  przepisana[i]=num2[i];
+}
+}
+if (strlen1>strlen2) {
+for (int i=0; i<strlen1+1;i++){
+  wynik[i]=num1[i];
+}
+int roznica = strlen1-strlen2;
+for (int i=0; i<(strlen2+roznica);i++){
+  przepisana[i+1]=num2[i];
+}
+}
+if (strlen1<strlen2) {
+int roznica = strlen2-strlen1;
+for (int i=0; i<(strlen1+roznica);i++){
+  wynik[i+1]=num1[i];
+}
+for (int i=0; i<strlen2;i++){
+  przepisana[i]=num2[i];
+}
+
+}*/
+/*
+for (int i = 0; i<strlen1+1;i++){
+printf ("%d",wynik[i]);
+}
+printf("\n");
+
+for (int i = 0; i<strlen2+1;i++){
+printf ("%d",przepisana[i]);
+}
+printf("\n");
+*/
+
+if (strlen1 >= strlen2){
+ welcome(Num1, Num2, strlen1);
 }
 else{
- welcome(wynik, przepisana, strlen2);
+ welcome(Num1, Num2, strlen2);
 }
 
 printf("A tutaj nie jestem\n");
 
-for (int i = 0; i<strlen1;i++){
-printf ("%x",num1[i]);
+for (int i = 0; i<strlen1+1;i++){
+printf ("%x",Num1[i]);
 }
 printf("\n");
 
-for (int i = 0; i<strlen2;i++){
-printf ("%x",num2[i]);
+for (int i = 0; i<strlen2+1;i++){
+printf ("%x",Num2[i]);
 }
 printf("\n");
 
-for (int i = 0; i<(strlen1+1);i++){
-printf ("%c",wynik[i]);
+/*for (int i = 0; i<(strlen1+1);i++){
+printf ("%x",wynik[i]);
 }
 printf("\n");
 
 for (int i = 0; i<(strlen2+1);i++){
-printf ("%c",przepisana[i]);
+printf ("%x",przepisana[i]);
 }
 printf("\n");
-
-
+*/
+//zwolnienie pamieci
 free(wynik);
 free(przepisana);
-
+free(Num1);
+free(Num2);
 return 0;
 }
 
