@@ -1,0 +1,3 @@
+Folder calcasm zawiera kod źródłowy oraz makefile kalkulatora liczb hexadecymalnych 100 bajtowych zgodnie z treścią projektu bez implementacji dzielenia (to jest ten program, o którym rozmawiałem z Panem na zajęciach; 
+Ten, który ma zaimplementowane teoretycznie dobrze (ponieważ testowane na małej puli liczb) dodawanie i odejmowanie oraz mnożenie przez jedną cyfrę drugiej liczby hexadecymalnej (działa poprawnie jedynie z liczbami od 0-9 oraz literą A).
+Folder calcasmd zawiera z kolei kod wyżej wymienionego programu z próbą implementacji dzielenia
