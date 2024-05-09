@@ -8,6 +8,8 @@ mov esi, [ebp+8] ;tablica 1
 mov edi, [ebp+12] ;tablica 2
 mov ecx, [ebp+16] ;ile liczb
 
+
+testowa:
 .sumator:
 add esi, ecx
 add edi, ecx
@@ -62,5 +64,4 @@ jmp .add_loop
 
 .done:
 leave
-pop ebp
 ret

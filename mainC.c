@@ -3,7 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 
-extern int welcome(int *a, int *b, int c);
+extern void welcome(int *a, int *b, int c);
 
 int check_Hex(const char *str) {
   for(int i=0; str[i] != '\0'; i++) {
@@ -27,8 +27,8 @@ char *num2 = argv[3];
 //Obliczenie dlugosci stringów
 int strlen1 = strlen(num1);
 int strlen2 = strlen(num2);
-printf("%d\n", strlen1);
-printf("%d\n", strlen2);
+//printf("%d\n", strlen1);
+//printf("%d\n", strlen2);
 //printf ("Num2 to %d\n", strlen2);
 
 if (check_Hex(num1)){
